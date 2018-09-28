@@ -28,14 +28,23 @@ final class XMLDocument {
         self.init(data: string.data(using: .utf8)!)
     }
 
-    init(data: Data) {
+    init(data: Data)
+    {
         ensureLibXMLErrorHandlingSuppressed()
         
         guard data.count > 0 else { return }
         
-        _document = data.withUnsafeBytes { (p: UnsafePointer<Int8>) -> htmlDocPtr in
-            return xmlReadMemory(p, Int32(data.count), nil, nil, 0)
+        var ptr : xmlDocPtr? = nil
+        
+        data.withUnsafeBytes
+        { (p: UnsafePointer<Int8>) in
+                
+            ptr = xmlReadMemory(p, Int32(data.count), nil, nil, 0)
         }
+        
+        guard let p = ptr else { return }
+        
+        _document = p
     }
 
     var children: [XMLElement] {
